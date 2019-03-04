@@ -43,6 +43,10 @@ void RequestProcessing::GetRequest(){
         response=handler.authHandler();
     if(Request_->GetPath()=="/invoice.json")
         response=handler.invoiceHandler();
+    if(Request_->GetPath()=="/wkinfo.json")
+        response=handler.wkInfoHandler();
+    if(Request_->GetPath()=="/guests.json")
+        response=handler.guestsHandler();
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }
@@ -58,12 +62,16 @@ void RequestProcessing::PostRequest(){
     QString response;
     if(Request_->GetPath()=="/register.json")
         response=handler.registrHandler(Request_->GetPost());
-    if(Request_->GetPath()=="/ingredient.json")
+    if(Request_->GetPath()=="/newingredient.json")
         response=handler.newIngredientHandler(Request_->GetPost());
-    if(Request_->GetPath()=="/stock.json")
+    if(Request_->GetPath()=="/newstock.json")
         response=handler.newStockHandler(Request_->GetPost());
-    if(Request_->GetPath()=="/dish.json")
+    if(Request_->GetPath()=="/newdish.json")
         response=handler.newDishHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/newguest.json")
+        response=handler.newGuestHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/updateguest.json")
+        response=handler.updateGuestHandler(Request_->GetPost());
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }

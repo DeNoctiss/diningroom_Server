@@ -138,3 +138,64 @@ QString PostRequestHandler::newDishHandler(QString post)
     }
     else return QString("NO");
 }
+
+QString PostRequestHandler::newGuestHandler(QString post)
+{
+    if(post != ""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        query->prepare("SELECT `guests`.`pasport` FROM `guests` WHERE `guests`.`pasport` =\""+obj["pasport"].toString()+"\"");
+        query->exec();
+        if(query->size()==0){
+            int id = 1;
+            bool f =1;
+            while (f) {
+                query->prepare("SELECT `guests`.`id_guest` FROM `guests` WHERE `guests`.`id_guest` = " + QString::number(id));
+                query->exec();
+                if(query->size()==0){
+                    f=0;
+                }
+                else {
+                    id++;
+                }
+            }
+
+
+            QString tamplate = "INSERT INTO `guests`(`id_guest`, `pasport`, `second_name`, `first_name`, `patronymic`, `telephone`, `settlement_date`, `eviction_date`) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8')";
+            query->prepare(tamplate.arg(QString::number(id)).arg(obj["pasport"].toString()).arg(obj["second_name"].toString()).arg(obj["first_name"].toString()).arg(obj["patronymic"].toString()).arg(obj["telephone"].toString()).arg(obj["settlement_date"].toString()).arg(obj["eviction_date"].toString()));
+            query->exec();
+
+
+
+            return QString("YES");
+        }
+        else {
+            return QString("Guest exist");
+        }
+    }
+    else return QString("NO");
+}
+
+QString PostRequestHandler::updateGuestHandler(QString post)
+{
+    if(post != ""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        query->prepare("SELECT `guests`.`pasport` FROM `guests` WHERE `guests`.`pasport` =\""+obj["pasport"].toString()+"\"");
+        query->exec();
+        if(query->size()!=0){
+            QString tamplate ="UPDATE `guests` SET`pasport`='%1',`second_name`='%2',`first_name`='%3',`patronymic`='%4',`telephone`='%5',`settlement_date`='%6',`eviction_date`='%7' WHERE `guests`.`pasport` = \"%8\"";
+            query->prepare(tamplate.arg(obj["pasport"].toString()).arg(obj["second_name"].toString()).arg(obj["first_name"].toString()).arg(obj["patronymic"].toString()).arg(obj["telephone"].toString()).arg(obj["settlement_date"].toString()).arg(obj["eviction_date"].toString()).arg(obj["id"].toString()));
+            query->exec();
+            return QString("YES");
+        }
+        else {
+            return QString("Pasport not found");
+        }
+
+    }
+    else return QString("NO");
+}

@@ -17,6 +17,8 @@ public:
     QString newIngredientHandler(QString post);
     QString newStockHandler(QString post);
     QString newDishHandler(QString post);
+    QString newGuestHandler(QString post);
+    QString updateGuestHandler(QString post);
 private:
     QSqlDatabase* DB_;
     Request* Request_;
