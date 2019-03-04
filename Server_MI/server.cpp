@@ -2,6 +2,7 @@
 
 Server::Server(QObject* parent): QTcpServer (parent),ThreadPool(new QThreadPool(this))
 {
+    ThreadPool->setMaxThreadCount(1);
     DB_= QSqlDatabase::addDatabase("QMYSQL");
     DB_.setDatabaseName("sanatorii");
     DB_.setHostName("127.0.0.1");
