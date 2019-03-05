@@ -23,6 +23,7 @@ public:
     QString invoiceHandler();
     QString wkInfoHandler();
     QString guestsHandler();
+    QString guestCountHandler();
 private:
     QSqlDatabase* DB_;
     Request* Request_;

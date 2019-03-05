@@ -48,6 +48,8 @@ void RequestProcessing::GetRequest(){
         response=handler.wkInfoHandler();
     if(Request_->GetPath()=="/guests.json")
         response=handler.guestsHandler();
+    if(Request_->GetPath()=="/countguests.json")
+        response=handler.guestCountHandler();
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }

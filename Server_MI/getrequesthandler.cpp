@@ -217,3 +217,17 @@ QString GetRequestHandler::guestsHandler()
     doc.setArray(guests);
     return QString(doc.toJson());
 }
+
+QString GetRequestHandler::guestCountHandler()
+{
+    QJsonObject count;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT COUNT(`guests`.`id_guest`) FROM `guests` WHERE `guests`.`settlement_date`<= '"+Request_->GetCgi("date")+"' AND `guests`.`eviction_date` >= '"+Request_->GetCgi("date")+"'");
+    query->exec();
+    while (query->next()) {
+        count["count"] = query->value(0).toString();
+    }
+    QJsonDocument doc;
+    doc.setObject(count);
+    return QString(doc.toJson());
+}
