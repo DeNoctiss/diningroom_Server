@@ -1,6 +1,6 @@
 #include "server.h"
 
-Server::Server(QObject* parent): QTcpServer (parent),ThreadPool(new QThreadPool(this))
+Server::Server(QObject* parent): QTcpServer (parent), ThreadPool(new QThreadPool(this))
 {
     ThreadPool->setMaxThreadCount(1);
     DB_= QSqlDatabase::addDatabase("QMYSQL");
@@ -30,6 +30,7 @@ void Server::StartServer(){
 }
 
 void Server::incomingConnection(qintptr socketDescriptor){
-    RequestProcessing* requestProcessing =new RequestProcessing(socketDescriptor,&DB_);
+    RequestProcessing* requestProcessing = new RequestProcessing(socketDescriptor,&DB_);
     ThreadPool->start(requestProcessing);
+
 }

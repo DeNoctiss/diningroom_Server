@@ -19,6 +19,7 @@ public:
     QString newDishHandler(QString post);
     QString newGuestHandler(QString post);
     QString updateGuestHandler(QString post);
+    QString addMenuHandler(QString post);
 private:
     QSqlDatabase* DB_;
     Request* Request_;

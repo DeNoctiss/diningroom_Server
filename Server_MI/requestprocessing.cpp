@@ -14,6 +14,8 @@ void RequestProcessing::run(){
     Socket_->disconnectFromHost();
     Socket_->close();
     Socket_->deleteLater();
+    qDebug() <<6;
+    delete Socket_;
 }
 
 
@@ -23,6 +25,7 @@ void RequestProcessing::Responce(){
     qDebug() << ask;
     Request_=new Request(ask);
     if(Request_->GetType()=="GET"){
+        qDebug() << 1;
         GetRequest();
     }
     if(Request_->GetType()=="POST"){
@@ -51,8 +54,10 @@ void RequestProcessing::GetRequest(){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }
     else {
+        qDebug() << 4;
         response ="HTTP/1.1 200 OK \r\nContent-Type: application/json\r\n\r\n" + response;
         Socket_->write(response.toLocal8Bit());
+        qDebug() << 5;
     }
 
 }
@@ -72,6 +77,8 @@ void RequestProcessing::PostRequest(){
         response=handler.newGuestHandler(Request_->GetPost());
     if(Request_->GetPath()=="/updateguest.json")
         response=handler.updateGuestHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/addmenu.json")
+        response=handler.addMenuHandler(Request_->GetPost());
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }

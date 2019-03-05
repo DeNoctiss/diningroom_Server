@@ -199,3 +199,32 @@ QString PostRequestHandler::updateGuestHandler(QString post)
     }
     else return QString("NO");
 }
+
+QString PostRequestHandler::addMenuHandler(QString post)
+{
+    //{"date":"2019-02-10","amount":"30","type":"dinner","dishs":["dish1","dish2"]}
+
+    if(post!= ""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        int id = 1;
+        bool f =1;
+        while (f) {
+            query->prepare("SELECT `menu`.`id_menu` FROM `menu` WHERE `menu`.`id_menu` = " + QString::number(id));
+            query->exec();
+            if(query->size()==0){
+                f=0;
+            }
+            else {
+                id++;
+            }
+        }
+        query->prepare("INSERT INTO `menu`(`id_menu`, `date_menu`, `id_type`, `amount_portion`) VALUES ('"+QString::number(id)+"','"+obj["date"].toString()+"',(SELECT `type_menu`.`id_type` FROM `type_menu` WHERE `type_menu`.`title_type` = \""+obj["type"].toString()+"\" ),'"+obj["amount"].toString()+"')");
+        query->exec();
+    }
+    else {
+        return QString ("NO");
+    }
+
+}

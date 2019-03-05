@@ -70,12 +70,28 @@ QString GetRequestHandler::StockIngHandler(){
     }
     QJsonObject stock;
     stock["ingredient_stock"]=stock_ing_array;
+
+    QJsonArray stocks;
+    if(query->exec("SELECT * FROM stock"))
+        while (query->next()) {
+            stocks.append(query->value(1).toString());
+        }
+    stock["Stocks"]=stocks;
+
+    QJsonArray ingredients;
+    if(query->exec("SELECT * FROM ingredients"))
+        while (query->next()) {
+            ingredients.append(query->value(1).toString());
+        }
+    stock["Ingredients"]=ingredients;
+
     QJsonDocument doc;
     doc.setObject(stock);
     return QString(doc.toJson());
 }
 
 QString GetRequestHandler::menuHandler(){
+    qDebug() << 2;
     QJsonArray menu_arr;
     QSqlQuery* query = new QSqlQuery(*DB_);
     if(query->exec("SELECT `menu`.`id_menu`, `menu`.`date_menu`, `type_menu`.`title_type`, `menu`.`amount_portion` FROM `menu` INNER JOIN `type_menu` ON `type_menu`.`id_type`=`menu`.`id_type`"))
@@ -98,6 +114,7 @@ QString GetRequestHandler::menuHandler(){
     QJsonObject menu;
     menu["Menu"]=menu_arr;
     QJsonDocument doc;
+    qDebug() << 3;
     doc.setObject(menu);
     return QString(doc.toJson());
 }
