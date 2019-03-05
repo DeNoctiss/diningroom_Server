@@ -220,8 +220,45 @@ QString PostRequestHandler::addMenuHandler(QString post)
                 id++;
             }
         }
-        query->prepare("INSERT INTO `menu`(`id_menu`, `date_menu`, `id_type`, `amount_portion`) VALUES ('"+QString::number(id)+"','"+obj["date"].toString()+"',(SELECT `type_menu`.`id_type` FROM `type_menu` WHERE `type_menu`.`title_type` = \""+obj["type"].toString()+"\" ),'"+obj["amount"].toString()+"')");
+        query->prepare("INSERT INTO `menu`(`id_menu`, `date_menu`, `id_type`, `amount_portion`) VALUES ('"+QString::number(id)+"','"+obj["date"].toString()+"',(SELECT `type_menu`.`id_type` FROM `type_menu` WHERE `type_menu`.`title_type` = \""+obj["type"].toString()+"\" ),"+QString::number(obj["amount"].toInt())+")");
         query->exec();
+        QJsonArray dishs = doc["dishs"].toArray();
+
+        for(int i=0; i< dishs.size();i++){
+            query->prepare("INSERT INTO `menu-dish`(`id_menu`, `id_dish`) VALUES ('"+QString::number(id)+"',(SELECT `dish`.`id_dish` FROM `dish` WHERE `dish`.`title_dish` = \""+dishs[i].toString()+"\"))");
+            query->exec();
+
+            query->prepare("SELECT `ingredients`.`title_ingredient` , `ingredients-dish`.`amount_ingredient` FROM `ingredients-dish` INNER JOIN `ingredients` ON `ingredients-dish`.`id_ingredient` = `ingredients`.`id_ingredient` INNER JOIN `dish` ON `ingredients-dish`.`id_dish` = `dish`.`id_dish` WHERE `dish`.`title_dish` = \""+dishs[i].toString()+"\"");
+            query->exec();
+            while (query->next()) {
+                int count = query->value(1).toInt()*obj["amount"].toInt();
+                QSqlQuery* qry = new QSqlQuery(*DB_);
+                qry->prepare("SELECT `ingredients-stock`.`id_stock`, `ingredients`.`title_ingredient`, `ingredients-stock`.`amount_ingredient` FROM `ingredients-stock` INNER JOIN `ingredients` ON `ingredients-stock`.`id_ingredient` = `ingredients`.`id_ingredient` WHERE `ingredients`.`title_ingredient` = \""+query->value(0).toString()+"\"");
+                qry->exec();
+                while(qry->next()){
+                    while (count!=0) {
+                        int ing_am = qry->value(2).toInt();
+                        if(count >= ing_am){
+                            QSqlQuery *upd = new QSqlQuery(*DB_);
+                            upd->prepare("UPDATE `ingredients-stock` SET `amount_ingredient`= 0  WHERE `ingredients-stock`.`id_stock` = "+qry->value(0).toString());
+                            upd->exec();
+                            count -= ing_am;
+                        }
+                        else {
+                            int sub = ing_am - count;
+                            QSqlQuery *upd = new QSqlQuery(*DB_);
+                            upd->prepare("UPDATE `ingredients-stock` SET `amount_ingredient`= "+QString::number(sub)+"  WHERE `ingredients-stock`.`id_stock` = "+qry->value(0).toString());
+                            upd->exec();
+                            count = 0;
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+        return QString ("YES");
     }
     else {
         return QString ("NO");
