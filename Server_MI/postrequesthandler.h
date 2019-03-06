@@ -20,6 +20,7 @@ public:
     QString newGuestHandler(QString post);
     QString updateGuestHandler(QString post);
     QString addMenuHandler(QString post);
+    QString addInvoiceHandler(QString post);
 private:
     QSqlDatabase* DB_;
     Request* Request_;

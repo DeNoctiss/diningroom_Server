@@ -77,6 +77,8 @@ void RequestProcessing::PostRequest(){
         response=handler.updateGuestHandler(Request_->GetPost());
     if(Request_->GetPath()=="/addmenu.json")
         response=handler.addMenuHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/addinvoice.json")
+        response=handler.addInvoiceHandler(Request_->GetPost());
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }

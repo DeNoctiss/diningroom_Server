@@ -265,3 +265,58 @@ QString PostRequestHandler::addMenuHandler(QString post)
     }
 
 }
+
+QString PostRequestHandler::addInvoiceHandler(QString post)
+{
+    //{"date":"2019-02-13","stock":"Подвал","id":"982", "ingredients": [{"title":"Морковь","amount":20},...]}
+
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QString stock = obj["stock"].toString();
+        query->prepare("SELECT `invoice`.`id_invoice` FROM `invoice` WHERE `invoice`.`id_invoice` = "+obj["id"].toString());
+        query->exec();
+        if(query->size()==0){
+
+            query->prepare("INSERT INTO `invoice`(`id_invoice`, `date_invoice`) VALUES ('"+obj["id"].toString()+"','"+obj["date"].toString()+"')");
+            query->exec();
+
+            QJsonArray ingredients = obj["ingredients"].toArray();
+            for (int i=0;i<ingredients.size();i++) {
+                QString ing_title = ingredients[i].toObject().value("title").toString();
+                int amount = ingredients[i].toObject().value("amount").toInt();
+                query->prepare("INSERT INTO `invoice-stock`(`id_invoice`, `id_ingredient`, `amount_ingredient`, `id_stock`) VALUES ('"+obj["id"].toString()+"',(SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient` = \""+ing_title+"\" ),'"+QString::number(amount)+"',(SELECT `stock`.`id_stock` FROM `stock` WHERE `stock`.`title_stock`= \""+stock+"\"))");
+                query->exec();
+
+                QSqlQuery* qry = new QSqlQuery(*DB_);
+                qry->prepare("SELECT * FROM `ingredients-stock` WHERE `ingredients-stock`.`id_ingredient` = (SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient`= \""+ing_title+"\" ) AND `ingredients-stock`.`id_stock` = (SELECT `stock`.`id_stock` FROM `stock` WHERE `stock`.`title_stock` = \""+stock+"\")");
+                qry->exec();
+                if(qry->size()==0){
+                    qry->prepare("INSERT INTO `ingredients-stock`(`id_stock`, `id_ingredient`, `amount_ingredient`) VALUES ((SELECT `stock`.`id_stock` FROM `stock` WHERE `stock`.`title_stock` = \""+stock+"\"),(SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient`= \""+ing_title+"\"),'"+QString::number(amount)+"')");
+                    qry->exec();
+                }
+                else {
+                    while (qry->next()) {
+                        QString id_ing = qry->record().value(1).toString();
+                        QString id_stock = qry->record().value(0).toString();
+                        int count = qry->value(2).toInt() + amount;
+                        qDebug() << id_ing << " " << id_stock << " " << count;
+                        qry->prepare("UPDATE `ingredients-stock` SET `amount_ingredient` = "+QString::number(count)+" WHERE (`ingredients-stock`.`id_stock` = \""+id_stock+"\")  AND (`ingredients-stock`.`id_ingredient` = \""+id_ing+"\") ");
+                        qry->exec();
+                    }
+
+                }
+            }
+            return QString("YES");
+        }
+        else {
+            return QString("Invoice exsist");
+        }
+    }
+    else {
+        return QString("NO");
+    }
+
+
+}
