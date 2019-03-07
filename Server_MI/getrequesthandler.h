@@ -22,8 +22,22 @@ public:
     QString authHandler();
     QString invoiceHandler();
     QString wkInfoHandler();
-    QString guestsHandler();
     QString guestCountHandler();
+
+    QString authTableHandler();
+    QString dishTableHandler();
+    QString guestsTableHandler();
+    QString ingredientsTableHandler();
+    QString ingredients_dishTableHandler();
+    QString ingredients_stockHandler();
+    QString invoiceTableHandler();
+    QString invoice_stockHandler();
+    QString menuTableHandler();
+    QString menu_dishTableHandler();
+    QString roleTableHandler();
+    QString stockTableHandler();
+    QString type_menuTableHandler();
+
 private:
     QSqlDatabase* DB_;
     Request* Request_;

@@ -195,7 +195,7 @@ QString GetRequestHandler::wkInfoHandler()
     return QString(doc.toJson());
 }
 
-QString GetRequestHandler::guestsHandler()
+QString GetRequestHandler::guestsTableHandler()
 {
     QJsonArray guests;
     QSqlQuery* query= new QSqlQuery(*DB_);
@@ -218,6 +218,7 @@ QString GetRequestHandler::guestsHandler()
     return QString(doc.toJson());
 }
 
+
 QString GetRequestHandler::guestCountHandler()
 {
     QJsonObject count;
@@ -229,5 +230,218 @@ QString GetRequestHandler::guestCountHandler()
     }
     QJsonDocument doc;
     doc.setObject(count);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::authTableHandler()
+{
+    QJsonArray auth;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `auth`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject user;
+        user["login"]=query->value(0).toString();
+        user["password"]=query->value(1).toString();
+        user["id_role"]=query->value(2).toString();
+        auth.append(user);
+    }
+    QJsonDocument doc;
+    doc.setArray(auth);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::dishTableHandler()
+{
+    QJsonArray dishs;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `dish`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject dish;
+        dish["id"]=query->value(0).toString();
+        dish["title"]=query->value(1).toString();
+        dishs.append(dish);
+    }
+    QJsonDocument doc;
+    doc.setArray(dishs);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::ingredientsTableHandler()
+{
+    QJsonArray ingredients;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `ingredients`");
+    query->exec();
+    while(query->next()){
+        QJsonObject ingredient;
+        ingredient["id"]=query->value(0).toString();
+        ingredient["title"]=query->value(1).toString();
+        ingredient["needonstock"]=query->value(2).toString();
+        ingredient["unit"]=query->value(3).toString();
+        ingredients.append(ingredient);
+    }
+    QJsonDocument doc;
+    doc.setArray(ingredients);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::ingredients_dishTableHandler()
+{
+    QJsonArray table;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `ingredients-dish`");
+    query->exec();
+    while(query->next()){
+        QJsonObject row;
+        row["id_dish"]=query->value(0).toString();
+        row["id_ingredient"]=query->value(1).toString();
+        row["amount"]=query->value(2).toString();
+        table.append(row);
+    }
+    QJsonDocument doc;
+    doc.setArray(table);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::ingredients_stockHandler()
+{
+    QJsonArray table;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `ingredients-stock`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject row;
+        row["id_stock"]=query->value(0).toString();
+        row["id_ingredient"]=query->value(1).toString();
+        row["amount"]=query->value(2).toString();
+        table.append(row);
+    }
+    QJsonDocument doc;
+    doc.setArray(table);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::invoiceTableHandler()
+{
+    QJsonArray invoices;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `invoice`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject invoice;
+        invoice["id"]=query->value(0).toString();
+        invoice["date"]=query->value(1).toString();
+        invoices.append(invoice);
+    }
+    QJsonDocument doc;
+    doc.setArray(invoices);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::invoice_stockHandler()
+{
+    QJsonArray table;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `invoice-stock`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject row;
+        row["id_invoice"]=query->value(0).toString();
+        row["id_ingredient"]=query->value(1).toString();
+        row["amount"]=query->value(2).toString();
+        row["id_stock"]=query->value(3).toString();
+        table.append(row);
+    }
+    QJsonDocument doc;
+    doc.setArray(table);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::menuTableHandler()
+{
+    QJsonArray menus;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `menu`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject menu;
+        menu["id"]=query->value(0).toString();
+        menu["date"]=query->value(1).toString();
+        menu["id_type"]=query->value(2).toString();
+        menu["amount"]=query->value(3).toString();
+        menus.append(menu);
+    }
+    QJsonDocument doc;
+    doc.setArray(menus);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::menu_dishTableHandler()
+{
+    QJsonArray table;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `menu-dish`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject row;
+        row["id_menu"]=query->value(0).toString();
+        row["id_dish"]=query->value(1).toString();
+        table.append(row);
+    }
+    QJsonDocument doc;
+    doc.setArray(table);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::roleTableHandler()
+{
+    QJsonArray roles;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `role`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject role;
+        role["id"]=query->value(0).toString();
+        role["role"]=query->value(1).toString();
+        roles.append(role);
+    }
+    QJsonDocument doc;
+    doc.setArray(roles);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::stockTableHandler()
+{
+    QJsonArray stocks;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `stock`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject stock;
+        stock["id"]=query->value(0).toString();
+        stock["title"]=query->value(1).toString();
+        stocks.append(stock);
+    }
+    QJsonDocument doc;
+    doc.setArray(stocks);
+    return QString(doc.toJson());
+}
+
+QString GetRequestHandler::type_menuTableHandler()
+{
+    QJsonArray types;
+    QSqlQuery* query = new QSqlQuery(*DB_);
+    query->prepare("SELECT * FROM `type_menu`");
+    query->exec();
+    while (query->next()) {
+        QJsonObject type;
+        type["id"]=query->value(0).toString();
+        type["title"]=query->value(1).toString();
+        types.append(type);
+    }
+    QJsonDocument doc;
+    doc.setArray(types);
     return QString(doc.toJson());
 }

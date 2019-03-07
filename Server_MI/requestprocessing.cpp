@@ -46,10 +46,34 @@ void RequestProcessing::GetRequest(){
         response=handler.invoiceHandler();
     if(Request_->GetPath()=="/wkinfo.json")
         response=handler.wkInfoHandler();
-    if(Request_->GetPath()=="/guests.json")
-        response=handler.guestsHandler();
+    if(Request_->GetPath()=="/gueststable.json")
+        response=handler.guestsTableHandler();
     if(Request_->GetPath()=="/countguests.json")
         response=handler.guestCountHandler();
+    if(Request_->GetPath()=="/authtable.json")
+        response=handler.authTableHandler();
+    if(Request_->GetPath()=="/dishtable.json")
+        response=handler.dishTableHandler();
+    if(Request_->GetPath()=="/ingredienttable.json")
+        response=handler.ingredientsTableHandler();
+    if(Request_->GetPath()=="/ingredients_dishtable.json")
+        response=handler.ingredients_dishTableHandler();
+    if(Request_->GetPath()=="/ingredients_stocktable.json")
+        response=handler.ingredients_stockHandler();
+    if(Request_->GetPath()=="/invoicetable.json")
+        response=handler.invoiceTableHandler();
+    if(Request_->GetPath()=="/invoice_stocktable.json")
+        response=handler.invoice_stockHandler();
+    if(Request_->GetPath()=="/menutable.json")
+        response=handler.menuTableHandler();
+    if(Request_->GetPath()=="/menu_dishtable.json")
+        response=handler.menu_dishTableHandler();
+    if(Request_->GetPath()=="/roletable.json")
+        response=handler.roleTableHandler();
+    if(Request_->GetPath()=="/stocktable.json")
+        response=handler.stockTableHandler();
+    if(Request_->GetPath()=="/type_menutable.json")
+        response=handler.type_menuTableHandler();
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }
