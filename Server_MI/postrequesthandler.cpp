@@ -320,3 +320,99 @@ QString PostRequestHandler::addInvoiceHandler(QString post)
 
 
 }
+
+QString PostRequestHandler::deleteTableHandler(QString post)
+{
+ //{"table":"name"}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        query->prepare("DELETE FROM `"+obj["table"].toString()+"` WHERE 0");
+        query->exec();
+    }
+    else {
+        QString ("NO");
+    }
+}
+
+QString PostRequestHandler::deleteByIdHandler(QString post)
+{
+    //{"table":"name,"id":"1"}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QString field;
+        query->prepare("SELECT * FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        field = query->record().fieldName(0);
+        query->prepare("DELETE FROM `"+obj["table"].toString()+"` WHERE `"+field+"` = \""+obj["id"].toString()+"\"");
+        query->exec();
+        return QString("YES");
+    }
+    else {
+        return QString("NO");
+    }
+}
+
+QString PostRequestHandler::deleteByWhereHandler(QString post)
+{
+    //{"table":"name","where1":" ","where2":" "}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QString field1;
+        QString field2;
+        query->prepare("SELECT * FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        field1 = query->record().fieldName(0);
+        field2 = query->record().fieldName(1);
+        query->prepare("DELETE FROM `"+obj["table"].toString()+"` WHERE `"+field1+"` = \""+obj["where1"].toString()+"\" AND `"+field2+"` = \""+obj["where2"].toString()+"\"");
+        query->exec();
+        return QString("YES");
+    }
+    else {
+        return QString("NO");
+    }
+}
+
+QString PostRequestHandler::insertHandler(QString post)
+{
+    //{"table":"name","val":[1,2,3...]}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QJsonArray val = obj["values"].toArray();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QStringList list;
+        query->prepare("SHOW FIELDS FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        while (query->next()) {
+            list.append(query->value(0).toString());
+        }
+        QString tamplate = "INSERT INTO `"+obj["table"].toString()+"`(";
+        for (int i=0;i<list.size();i++) {
+            if (i!=list.size()-1)
+            tamplate+="`"+list.at(i)+"`,";
+            else {
+                tamplate+="`"+list.at(i)+"`) VALUES (";
+            }
+        }
+        for (int i=0;i<val.size();i++) {
+            if(i!=val.size()-1){
+                tamplate+="'"+val[i].toString()+"',";
+            }
+            else {
+                tamplate+="'"+val[i].toString()+"')";
+            }
+        }
+        query->prepare(tamplate);
+        query->exec();
+        return QString("YES");
+    }
+    else {
+        QString("NO");
+    }
+}

@@ -103,6 +103,14 @@ void RequestProcessing::PostRequest(){
         response=handler.addMenuHandler(Request_->GetPost());
     if(Request_->GetPath()=="/addinvoice.json")
         response=handler.addInvoiceHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/delete.json")
+        response=handler.deleteTableHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/deletebyid.json")
+        response=handler.deleteByIdHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/deletebywhere.json")
+        response=handler.deleteByWhereHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/insert.json")
+        response=handler.insertHandler(Request_->GetPost());
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }

@@ -21,6 +21,11 @@ public:
     QString updateGuestHandler(QString post);
     QString addMenuHandler(QString post);
     QString addInvoiceHandler(QString post);
+
+    QString deleteTableHandler(QString post);
+    QString deleteByIdHandler(QString post);
+    QString deleteByWhereHandler(QString post);
+    QString insertHandler(QString post);
 private:
     QSqlDatabase* DB_;
     Request* Request_;

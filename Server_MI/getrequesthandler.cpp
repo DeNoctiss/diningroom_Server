@@ -153,6 +153,19 @@ QString GetRequestHandler::invoiceHandler()
         }
     QJsonObject invoice;
     invoice["Invoice"]=inv_arr;
+    QJsonArray stocks;
+    if(query->exec("SELECT * FROM stock"))
+        while (query->next()) {
+            stocks.append(query->value(1).toString());
+        }
+    invoice["Stocks"]=stocks;
+
+    QJsonArray ingredients;
+    if(query->exec("SELECT * FROM ingredients"))
+        while (query->next()) {
+            ingredients.append(query->value(1).toString());
+        }
+    invoice["Ingredients"]=ingredients;
     QJsonDocument doc;
     doc.setObject(invoice);
     return QString(doc.toJson());
