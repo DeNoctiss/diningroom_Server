@@ -26,6 +26,8 @@ public:
     QString deleteByIdHandler(QString post);
     QString deleteByWhereHandler(QString post);
     QString insertHandler(QString post);
+    QString updateByIdHandler(QString post);
+    QString updateByWhereHandler(QString post);
 private:
     QSqlDatabase* DB_;
     Request* Request_;

@@ -330,9 +330,10 @@ QString PostRequestHandler::deleteTableHandler(QString post)
         QSqlQuery *query = new QSqlQuery(*DB_);
         query->prepare("DELETE FROM `"+obj["table"].toString()+"` WHERE 0");
         query->exec();
+        return QString ("YES");
     }
     else {
-        QString ("NO");
+        return QString ("NO");
     }
 }
 
@@ -413,6 +414,72 @@ QString PostRequestHandler::insertHandler(QString post)
         return QString("YES");
     }
     else {
-        QString("NO");
+        return QString("NO");
+    }
+}
+
+QString PostRequestHandler::updateByIdHandler(QString post)
+{
+    //{"table":"name","val":[1,2,3...],"id":"1"}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QJsonArray val = obj["values"].toArray();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QStringList list;
+        query->prepare("SHOW FIELDS FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        while (query->next()) {
+            list.append(query->value(0).toString());
+        }
+        QString tamplate = "UPDATE `"+ obj["table"].toString()+"` SET ";
+        for (int i=0;i<list.size();i++) {
+            if (i!=list.size()-1)
+            tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
+            else {
+                tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"' WHERE `"+list.at(0)+"` = \""+obj["id"].toString()+"\"";
+            }
+        }
+        query->prepare(tamplate);
+        query->exec();
+        return QString("YES");
+    }
+    else {
+        return QString("NO");
+    }
+}
+
+QString PostRequestHandler::updateByWhereHandler(QString post)
+{
+    //{"table":"name","val":[1,2,3...],"where1":"1","where2":"1"}
+    if(post!=""){
+        QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
+        QJsonObject obj = doc.object();
+        QJsonArray val = obj["values"].toArray();
+        QSqlQuery *query = new QSqlQuery(*DB_);
+        QStringList list;
+        query->prepare("SHOW FIELDS FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        while (query->next()) {
+            list.append(query->value(0).toString());
+        }
+        query->prepare("SELECT * FROM `"+obj["table"].toString()+"`");
+        query->exec();
+        QString field1 = query->record().fieldName(0);
+        QString field2 = query->record().fieldName(1);
+        QString tamplate = "UPDATE `"+ obj["table"].toString()+"` SET ";
+        for (int i=0;i<list.size();i++) {
+            if (i!=list.size()-1)
+            tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
+            else {
+                tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"' WHERE `"+field1+"` = \""+obj["where1"].toString()+"\" AND `"+field2+"` = \""+obj["where2"].toString()+"\"";
+            }
+        }
+        query->prepare(tamplate);
+        query->exec();
+        return QString("YES");
+    }
+    else {
+        return QString("NO");
     }
 }

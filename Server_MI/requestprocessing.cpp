@@ -54,7 +54,7 @@ void RequestProcessing::GetRequest(){
         response=handler.authTableHandler();
     if(Request_->GetPath()=="/dishtable.json")
         response=handler.dishTableHandler();
-    if(Request_->GetPath()=="/ingredienttable.json")
+    if(Request_->GetPath()=="/ingredientstable.json")
         response=handler.ingredientsTableHandler();
     if(Request_->GetPath()=="/ingredients_dishtable.json")
         response=handler.ingredients_dishTableHandler();
@@ -111,6 +111,10 @@ void RequestProcessing::PostRequest(){
         response=handler.deleteByWhereHandler(Request_->GetPost());
     if(Request_->GetPath()=="/insert.json")
         response=handler.insertHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/updatebyid.json")
+        response=handler.updateByIdHandler(Request_->GetPost());
+    if(Request_->GetPath()=="/updatebywhere.json")
+        response=handler.updateByWhereHandler(Request_->GetPost());
     if(response.isEmpty()){
         Socket_->write("HTTP/1.1 404 \r\n\r\nBad request");
     }
