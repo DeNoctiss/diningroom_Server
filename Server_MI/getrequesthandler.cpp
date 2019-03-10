@@ -182,7 +182,8 @@ QString GetRequestHandler::wkInfoHandler()
         QJsonObject ingredient;
         ingredient["id"]=query->value(0).toString();
         ingredient["title"]=query->value(1).toString();
-        ingredient["unit"]=query->value(2).toString();
+        ingredient["needstock"]=query->value(2).toString();
+        ingredient["unit"]=query->value(3).toString();
         ingredients.append(ingredient);
     }
     info["Ingredients"]=ingredients;
