@@ -146,21 +146,18 @@ QString PostRequestHandler::newGuestHandler(QString post)
         QJsonObject obj = doc.object();
 
         QSqlQuery *query = new QSqlQuery(*DB_);
-        query->prepare("SELECT `guests`.`pasport` FROM `guests` WHERE `guests`.`pasport` =\""+obj["pasport"].toString()+"\"");
-        query->exec();
-        if(query->size()==0){
-            int id = 1;
-            bool f =1;
-            while (f) {
-                query->prepare("SELECT `guests`.`id_guest` FROM `guests` WHERE `guests`.`id_guest` = " + QString::number(id));
-                query->exec();
-                if(query->size()==0){
-                    f=0;
-                }
-                else {
-                    id++;
-                }
+        int id = 1;
+        bool f =1;
+        while (f) {
+            query->prepare("SELECT `guests`.`id_guest` FROM `guests` WHERE `guests`.`id_guest` = " + QString::number(id));
+            query->exec();
+            if(query->size()==0){
+                f=0;
             }
+            else {
+                id++;
+            }
+
 
 
             QString tamplate = "INSERT INTO `guests`(`id_guest`, `pasport`, `second_name`, `first_name`, `patronymic`, `telephone`, `settlement_date`, `eviction_date`) VALUES ('%1','%2','%3','%4','%5','%6','%7','%8')";
@@ -170,9 +167,6 @@ QString PostRequestHandler::newGuestHandler(QString post)
 
 
             return QString("YES");
-        }
-        else {
-            return QString("Guest exist");
         }
     }
     else return QString("NO");
@@ -184,7 +178,7 @@ QString PostRequestHandler::updateGuestHandler(QString post)
         QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
         QJsonObject obj = doc.object();
         QSqlQuery *query = new QSqlQuery(*DB_);
-        query->prepare("SELECT `guests`.`pasport` FROM `guests` WHERE `guests`.`pasport` =\""+obj["pasport"].toString()+"\"");
+        query->prepare("SELECT `guests`.`id_guest` FROM `guests` WHERE `guests`.`id_guest` =\""+obj["id"].toString()+"\"");
         query->exec();
         if(query->size()!=0){
             QString tamplate ="UPDATE `guests` SET`pasport`='%1',`second_name`='%2',`first_name`='%3',`patronymic`='%4',`telephone`='%5',`settlement_date`='%6',`eviction_date`='%7' WHERE `guests`.`pasport` = \"%8\"";
@@ -323,7 +317,7 @@ QString PostRequestHandler::addInvoiceHandler(QString post)
 
 QString PostRequestHandler::deleteTableHandler(QString post)
 {
- //{"table":"name"}
+    //{"table":"name"}
     if(post!=""){
         QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
         QJsonObject obj = doc.object();
@@ -396,7 +390,7 @@ QString PostRequestHandler::insertHandler(QString post)
         QString tamplate = "INSERT INTO `"+obj["table"].toString()+"`(";
         for (int i=0;i<list.size();i++) {
             if (i!=list.size()-1)
-            tamplate+="`"+list.at(i)+"`,";
+                tamplate+="`"+list.at(i)+"`,";
             else {
                 tamplate+="`"+list.at(i)+"`) VALUES (";
             }
@@ -435,7 +429,7 @@ QString PostRequestHandler::updateByIdHandler(QString post)
         QString tamplate = "UPDATE `"+ obj["table"].toString()+"` SET ";
         for (int i=0;i<list.size();i++) {
             if (i!=list.size()-1)
-            tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
+                tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
             else {
                 tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"' WHERE `"+list.at(0)+"` = \""+obj["id"].toString()+"\"";
             }
@@ -470,7 +464,7 @@ QString PostRequestHandler::updateByWhereHandler(QString post)
         QString tamplate = "UPDATE `"+ obj["table"].toString()+"` SET ";
         for (int i=0;i<list.size();i++) {
             if (i!=list.size()-1)
-            tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
+                tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"',";
             else {
                 tamplate+="`"+list.at(i)+"` = '" +val[i].toString()+"' WHERE `"+field1+"` = \""+obj["where1"].toString()+"\" AND `"+field2+"` = \""+obj["where2"].toString()+"\"";
             }
