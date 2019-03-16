@@ -181,7 +181,7 @@ QString PostRequestHandler::updateGuestHandler(QString post)
         query->prepare("SELECT `guests`.`id_guest` FROM `guests` WHERE `guests`.`id_guest` =\""+obj["id"].toString()+"\"");
         query->exec();
         if(query->size()!=0){
-            QString tamplate ="UPDATE `guests` SET`pasport`='%1',`second_name`='%2',`first_name`='%3',`patronymic`='%4',`telephone`='%5',`settlement_date`='%6',`eviction_date`='%7' WHERE `guests`.`pasport` = \"%8\"";
+            QString tamplate ="UPDATE `guests` SET`pasport`='%1',`second_name`='%2',`first_name`='%3',`patronymic`='%4',`telephone`='%5',`settlement_date`='%6',`eviction_date`='%7' WHERE `guests`.`id_guest` = \"%8\"";
             query->prepare(tamplate.arg(obj["pasport"].toString()).arg(obj["second_name"].toString()).arg(obj["first_name"].toString()).arg(obj["patronymic"].toString()).arg(obj["telephone"].toString()).arg(obj["settlement_date"].toString()).arg(obj["eviction_date"].toString()).arg(obj["id"].toString()));
             query->exec();
             return QString("YES");
