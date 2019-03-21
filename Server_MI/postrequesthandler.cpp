@@ -31,6 +31,7 @@ QString PostRequestHandler::registrHandler(QString post)
 
 QString PostRequestHandler::newIngredientHandler(QString post)
 {
+    // {"title":"name","needonstock":"23","unit":"20"}
     if(post != ""){
         QJsonDocument doc = QJsonDocument::fromJson(post.toLocal8Bit());
         QJsonObject obj = doc.object();
@@ -52,7 +53,7 @@ QString PostRequestHandler::newIngredientHandler(QString post)
                 }
             }
 
-            query->prepare("INSERT INTO `ingredients`(`id_ingredient`, `title_ingredient`, `unit`) VALUES ('"+QString::number(id)+"','"+obj["title"].toString()+"','"+obj["unit"].toString()+"')");
+            query->prepare("INSERT INTO `ingredients`(`id_ingredient`, `title_ingredient`, `needonstock`, `unit`) VALUES ('"+QString::number(id)+"','"+obj["title"].toString()+"','"+obj["needonstock"].toString()+"' ,'"+obj["unit"].toString()+"')");
             query->exec();
             return QString("YES");
         }
@@ -225,6 +226,7 @@ QString PostRequestHandler::addMenuHandler(QString post)
             query->prepare("SELECT `ingredients`.`title_ingredient` , `ingredients-dish`.`amount_ingredient` FROM `ingredients-dish` INNER JOIN `ingredients` ON `ingredients-dish`.`id_ingredient` = `ingredients`.`id_ingredient` INNER JOIN `dish` ON `ingredients-dish`.`id_dish` = `dish`.`id_dish` WHERE `dish`.`title_dish` = \""+dishs[i].toString()+"\"");
             query->exec();
             while (query->next()) {
+                QString ing_title = query->value(0).toString(); // title
                 int count = query->value(1).toInt()*obj["amount"].toInt();
                 QSqlQuery* qry = new QSqlQuery(*DB_);
                 qry->prepare("SELECT `ingredients-stock`.`id_stock`, `ingredients`.`title_ingredient`, `ingredients-stock`.`amount_ingredient` FROM `ingredients-stock` INNER JOIN `ingredients` ON `ingredients-stock`.`id_ingredient` = `ingredients`.`id_ingredient` WHERE `ingredients`.`title_ingredient` = \""+query->value(0).toString()+"\"");
@@ -233,13 +235,57 @@ QString PostRequestHandler::addMenuHandler(QString post)
                     while (count!=0) {
                         int ing_am = qry->value(2).toInt();
                         if(count >= ing_am){
+                            QString stock = qry->value(0).toString(); // id
+
+                            //{"date":"2019-02-10","amount":"30","type":"dinner","dishs":["dish1","dish2"]}
+                            //инсерт в invoice и invoice-stock
+                            QSqlQuery* addinvoice = new QSqlQuery(*DB_);
+                            id = 1;
+                            f =1;
+                            while (f) {
+                                addinvoice->prepare("SELECT `invoice`.`id_invoice` FROM `invoice` WHERE `invoice`.`id_invoice` = " + QString::number(id));
+                                addinvoice->exec();
+                                if(addinvoice->size()==0){
+                                    f=0;
+                                }
+                                else {
+                                    id++;
+                                }
+                            }
+                            addinvoice->prepare("INSERT INTO `invoice`(`id_invoice`, `date_invoice`) VALUES ('"+QString::number(id)+"','"+obj["date"].toString()+"')");
+                            addinvoice->exec();
+
+                            addinvoice->prepare("INSERT INTO `invoice-stock`(`id_invoice`, `id_ingredient`, `amount_ingredient`, `id_stock`) VALUES ('"+QString::number(id)+"',(SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient` = \""+ing_title+"\" ),'"+QString::number(-count)+"','"+stock+"')");
+                            addinvoice->exec();
+
                             QSqlQuery *upd = new QSqlQuery(*DB_);
-                            upd->prepare("UPDATE `ingredients-stock` SET `amount_ingredient`= 0  WHERE `ingredients-stock`.`id_stock` = "+qry->value(0).toString());
+                            upd->prepare("UPDATE `ingredients-stock` SET `amount_ingredient`= 0  WHERE `ingredients-stock`.`id_stock` = "+stock);
                             upd->exec();
                             count -= ing_am;
+
                         }
                         else {
                             int sub = ing_am - count;
+                            QString stock = qry->value(0).toString(); // id
+                            QSqlQuery* addinvoice = new QSqlQuery(*DB_);
+                            id = 1;
+                            f =1;
+                            while (f) {
+                                addinvoice->prepare("SELECT `invoice`.`id_invoice` FROM `invoice` WHERE `invoice`.`id_invoice` = " + QString::number(id));
+                                addinvoice->exec();
+                                if(addinvoice->size()==0){
+                                    f=0;
+                                }
+                                else {
+                                    id++;
+                                }
+                            }
+                            addinvoice->prepare("INSERT INTO `invoice`(`id_invoice`, `date_invoice`) VALUES ('"+QString::number(id)+"','"+obj["date"].toString()+"')");
+                            addinvoice->exec();
+
+                            addinvoice->prepare("INSERT INTO `invoice-stock`(`id_invoice`, `id_ingredient`, `amount_ingredient`, `id_stock`) VALUES ('"+QString::number(id)+"',(SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient` = \""+ing_title+"\" ),'"+QString::number(-count)+"','"+stock+"')");
+                            addinvoice->exec();
+
                             QSqlQuery *upd = new QSqlQuery(*DB_);
                             upd->prepare("UPDATE `ingredients-stock` SET `amount_ingredient`= "+QString::number(sub)+"  WHERE `ingredients-stock`.`id_stock` = "+qry->value(0).toString());
                             upd->exec();

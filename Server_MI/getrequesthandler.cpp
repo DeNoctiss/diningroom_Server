@@ -36,11 +36,13 @@ QString GetRequestHandler::dishHandle(){
     QJsonObject dish;
     dish["Dishs"]=dishs_array;
     QJsonArray ingredients;
-    if (query->exec("SELECT `title_ingredient`, `unit` FROM ingredients"))
+    if (query->exec("SELECT * FROM ingredients"))
         while (query->next()) {
             QJsonObject ingredient;
-            ingredient["title"]=query->value(0).toString();
-            ingredient["unit"]=query->value(1).toString();
+            ingredient["title"]=query->value(1).toString();
+            ingredient["unit"]=query->value(3).toString();
+            ingredient["needonstock"]=query->value(2).toString();
+
             QSqlQuery* q = new QSqlQuery(*DB_);
             q->prepare("SELECT SUM(`ingredients-stock`.`amount_ingredient`) FROM `ingredients-stock` WHERE `ingredients-stock`.`id_ingredient` = (SELECT `ingredients`.`id_ingredient` FROM `ingredients` WHERE `ingredients`.`title_ingredient` = \""+ingredient["title"].toString()+"\")");
             q->exec();
