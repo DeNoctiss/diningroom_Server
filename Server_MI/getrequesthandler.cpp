@@ -142,7 +142,7 @@ QString GetRequestHandler::invoiceHandler()
 {
     QJsonArray inv_arr;
     QSqlQuery *query = new QSqlQuery(*DB_);
-    if(query->exec("SELECT `invoice-stock`.`id_invoice`, `invoice`.`date_invoice`, `stock`.`title_stock`, `ingredients`.`title_ingredient`, `ingredients-stock`.`amount_ingredient`, `ingredients`.`unit` FROM `invoice` INNER JOIN (`stock` INNER JOIN ((`ingredients` INNER JOIN `ingredients-stock` ON `ingredients`.`id_ingredient` = `ingredients-stock`.`id_ingredient`) INNER JOIN `invoice-stock` ON `ingredients`.`id_ingredient` = `invoice-stock`.`id_ingredient`) ON (`stock`.`id_stock` = `invoice-stock`.`id_stock`) AND (`stock`.`id_stock` = `ingredients-stock`.`id_stock`)) ON `invoice`.`id_invoice` = `invoice-stock`.`id_invoice`"))
+    if(query->exec("SELECT `invoice-stock`.`id_invoice`, `invoice`.`date_invoice`, `stock`.`title_stock`, `ingredients`.`title_ingredient`, `invoice-stock`.`amount_ingredient`, `ingredients`.`unit` FROM `invoice` INNER JOIN (`stock` INNER JOIN ((`ingredients` INNER JOIN `ingredients-stock` ON `ingredients`.`id_ingredient` = `ingredients-stock`.`id_ingredient`) INNER JOIN `invoice-stock` ON `ingredients`.`id_ingredient` = `invoice-stock`.`id_ingredient`) ON (`stock`.`id_stock` = `invoice-stock`.`id_stock`) AND (`stock`.`id_stock` = `ingredients-stock`.`id_stock`)) ON `invoice`.`id_invoice` = `invoice-stock`.`id_invoice`"))
         while (query->next()) {
             QJsonObject inv_obj;
             inv_obj["id"]=query->value(0).toString();
