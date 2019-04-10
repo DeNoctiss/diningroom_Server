@@ -20,7 +20,8 @@ public:
 public slots:
     void StartServer();
 private:
-    QThreadPool* ThreadPool;
+    std::unique_ptr<QThreadPool> ThreadPool;
+    //QThreadPool* ThreadPool;
     QSqlDatabase DB_;
 };
 

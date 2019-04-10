@@ -8,10 +8,10 @@ RequestProcessing::RequestProcessing(qintptr socket_id, QSqlDatabase*  db): Sock
 void RequestProcessing::run(){
     Socket_ = new QTcpSocket;
     Socket_->setSocketDescriptor(Socket_id);
-    Socket_->waitForReadyRead(1000);
+    Socket_->waitForReadyRead(500);
     Responce();
-    Socket_->waitForBytesWritten(1000);
-    Socket_->disconnectFromHost();
+    Socket_->waitForBytesWritten(500);
+    //Socket_->disconnectFromHost();
     Socket_->close();
     Socket_->deleteLater();
     delete Socket_;
@@ -21,7 +21,7 @@ void RequestProcessing::run(){
 void RequestProcessing::Responce(){
     QString ask(Socket_->readAll());
     if(ask.isEmpty()) return;
-    qDebug() << ask;
+    //qDebug() << ask;
     Request_=new Request(ask);
     if(Request_->GetType()=="GET"){
         GetRequest();
@@ -34,6 +34,7 @@ void RequestProcessing::Responce(){
 void RequestProcessing::GetRequest(){
     GetRequestHandler handler(DB_,Request_);
     QString response;
+    qDebug() << Request_->GetPath() << " client " << Socket_id;
     if(Request_->GetPath()=="/dish.json")
         response=handler.dishHandle();
     if(Request_->GetPath()=="/stock_ingredients.json")
@@ -87,6 +88,7 @@ void RequestProcessing::GetRequest(){
 void RequestProcessing::PostRequest(){
     PostRequestHandler handler(DB_,Request_);
     QString response;
+    qDebug() << Request_->GetPath() << " client " << Socket_id;
     if(Request_->GetPath()=="/register.json")
         response=handler.registrHandler(Request_->GetPost());
     if(Request_->GetPath()=="/newingredient.json")

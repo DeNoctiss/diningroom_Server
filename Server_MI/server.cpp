@@ -2,12 +2,13 @@
 
 Server::Server(QObject* parent): QTcpServer (parent), ThreadPool(new QThreadPool(this))
 {
-    ThreadPool->setMaxThreadCount(1);
-    DB_= QSqlDatabase::addDatabase("QMYSQL");
-    DB_.setDatabaseName("sanatorii");
-    DB_.setHostName("127.0.0.1");
-    DB_.setUserName("root");
-    DB_.setPassword("1423");
+    ThreadPool->setMaxThreadCount(3);
+    //qDebug() << ThreadPool->maxThreadCount();
+    DB_= QSqlDatabase::addDatabase("QSQLITE");
+    DB_.setDatabaseName("C:\\sqlite\\sanatorii.db");
+    //DB_.setHostName("127.0.0.1");
+    //DB_.setUserName("root");
+    //DB_.setPassword("1423");
     if(DB_.open()){
         qDebug() << "Db open";
     }
@@ -32,5 +33,4 @@ void Server::StartServer(){
 void Server::incomingConnection(qintptr socketDescriptor){
     RequestProcessing* requestProcessing = new RequestProcessing(socketDescriptor,&DB_);
     ThreadPool->start(requestProcessing);
-
 }
